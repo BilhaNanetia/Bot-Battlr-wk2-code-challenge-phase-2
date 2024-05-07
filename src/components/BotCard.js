@@ -10,8 +10,8 @@ const botTypeClasses = {
   Captain: "icon star",
  };
 
- function BotCard({ bot, onClick,  dischargeBot, onRelease }) {
-  const handleClick = () => {
+   function BotCard({ bot, onClick,  dischargeBot, onRelease }) {
+   const handleClick = () => {
     if (bot.enlisted && typeof onRelease === "function") {
       onRelease();        // Trigger onRelease (releaseBot) if the bot is enlisted
     } else if (!bot.enlisted && typeof onClick === "function") {
@@ -19,10 +19,12 @@ const botTypeClasses = {
 
     }
 
-  };
+   };
 
 
-  const handleDischarge = async () => {
+   const handleDischarge = async (event) => {
+    event.stopPropagation(); // Prevent card click event from firing
+
     try {
       await dischargeBot(bot.id);
 
@@ -32,7 +34,7 @@ const botTypeClasses = {
     }
 
   };
-
+  //console.log("onRelease prop:", onRelease); 
   
   return (
     <div className="ui column">

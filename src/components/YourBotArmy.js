@@ -8,6 +8,8 @@ function YourBotArmy({ bots, releaseBot, dischargeBot }) {
 
   };
 
+  //console.log("Bots in YourBotArmy:", bots); 
+
 
   return (
     <div className="ui segment inverted olive bot-army">
@@ -15,7 +17,11 @@ function YourBotArmy({ bots, releaseBot, dischargeBot }) {
         <div className="row bot-army-row">
           {bots.map((bot) => (
             <div key={bot.id} className="column" >
-             <BotCard bot={bot} onRelease={() => handleRelease(bot.id)} dischargeBot={dischargeBot} />
+             <BotCard
+              bot={bot} 
+              onRelease={() => handleRelease(bot.id)}
+               dischargeBot={dischargeBot} 
+               />
             </div>
           ))}
         </div>
