@@ -1,32 +1,26 @@
 import React from "react";
 import BotCard from "./BotCard";
 
-
-function YourBotArmy({ bots, releaseBot, dischargeBot }) {
-  const handleRelease = (botId) => {
-    releaseBot(botId); // Call the releaseBot function to remove the bot from the army
-
-  };
-
-  //console.log("Bots in YourBotArmy:", bots); 
-
+function YourBotArmy({ bots, removeBot, deleteBot }) {
+  
+ const myArmyBots = bots.map(bot => {
+  return <BotCard 
+    key={bot.id} 
+    bot={bot} 
+    handleSelect={removeBot}
+    deleteBot={deleteBot}/>
+ })
 
   return (
     <div className="ui segment inverted olive bot-army">
       <div className="ui five column grid">
         <div className="row bot-army-row">
-          {bots.map((bot) => (
-            <div key={bot.id} className="column" >
-             <BotCard
-              bot={bot} 
-              onRelease={() => handleRelease(bot.id)}
-               dischargeBot={dischargeBot} 
-               />
-            </div>
-          ))}
+          {myArmyBots}
+          Your Bot Army
         </div>
       </div>
     </div>
+    
   );
 }
 

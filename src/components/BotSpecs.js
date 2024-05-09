@@ -1,15 +1,15 @@
-import React from "react";
+ import React from "react";
 
-const botTypeClasses = {
+ const botTypeClasses = {
   Assault: "icon military",
   Defender: "icon shield",
   Support: "icon plus circle",
   Medic: "icon ambulance",
   Witch: "icon magic",
   Captain: "icon star",
-};
+ };
 
-function BotSpecs({ bot }) {
+ function BotSpecs({ bot, handleEnlist, handleGoBack }) {
   return (
     <div className="ui segment">
       <div className="ui two column centered grid">
@@ -52,19 +52,13 @@ function BotSpecs({ bot }) {
             </div>
             <button
               className="ui button fluid"
-              onClick={() =>
-                console.log("connect this to a function that shows all bots")
-              }
+              onClick={handleGoBack}
             >
               Go Back
             </button>
             <button
               className="ui button fluid"
-              onClick={() =>
-                console.log(
-                  "connect this to a function that adds this bot to your bot army list"
-                )
-              }
+              onClick={() => handleEnlist(bot)}
             >
               Enlist
             </button>
@@ -73,6 +67,6 @@ function BotSpecs({ bot }) {
       </div>
     </div>
   );
-}
+ }
 
-export default BotSpecs;
+ export default BotSpecs;

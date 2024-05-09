@@ -1,168 +1,106 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios"
+import React, {useEffect, useMemo, useState} from "react";
 import YourBotArmy from "./YourBotArmy";
 import BotCollection from "./BotCollection";
+import axios from 'axios'
+import BotSpecs from './BotSpecs';
+import SortBar from "./SortBar";
 
-function BotsPage() {
-  const [yourBotArmy, setYourBotArmy] = useState([])
-  const [allBots, setAllBots] = useState([]);
-  const [filters, setFilters] = useState([]);
+ function BotsPage() {
+  const [bots, setBots] = useState([]);
+  const [selectedBots, setselectedBots] = useState([]);
+  const [showBots, setShowBots] = useState(false);
+  const [myArmy, setMyArmy] = useState([]);
+  const [category, setCategory] = useState('');
+
+
+  //fetching bots
+  useEffect(()=>{
+    axios.get(`http://localhost:8002/bots`)
+    .then(res => setBots(res.data))
+    .catch(error=> console.error(error `Could not fetch bots`))
+
+  },[])
+
+  function handleSelect(botSelected){
+    setselectedBots(botSelected);
+    setShowBots(true)
+
+  }
+
+  function handleGoBack(){
+    setShowBots(false)
+    setselectedBots(null)
+    
+  }
+
+  function handleEnlist(botEnlisted){
+    if(!myArmy.find(bot => bot.id === botEnlisted.id))
+    setMyArmy([...myArmy,botEnlisted])
   
-  //Fetch all bots on component mount
-  useEffect(() => {
-    const fetchAllBots = async () => {
-      try {
-        const response = await axios.get("http://localhost:8002/bots");
-        setAllBots(response.data || []);
+ }
 
-      } catch (error) {
-        console.error("Error fetching bots:", error)
+ function deleteFromMyArmy(selectedBot){
+  const updatedArmy = myArmy.filter(bot=> bot.id !== selectedBot.id);
+  setMyArmy(updatedArmy)
+ }
 
-      }
-    };
+ function deleteBot(deletedBot){
+  const filteredBots =  bots.filter(bot=> bot.id !== deletedBot.id)
+  setBots(filteredBots)
 
-    fetchAllBots();
+  const updatedMyArmy = myArmy.filter(bot=> bot.id !== deletedBot.id);
+  setMyArmy(updatedMyArmy)
+ }
 
-  }, []);   //fetch only once on component mount
+ const sortedBots = useMemo(()=>{
+  let sortedItems = [...bots]
+  if(category === 'armor'){
+    sortedItems.sort((a,b) => b.armor - a.armor)
+  } else if (category === 'health'){
+    sortedItems.sort((a,b) => b.health - a.health)
+  } else if(category === 'damage'){
+    sortedItems.sort((a,b)=> b.damage - a.damage)
+  } 
+  return sortedItems
 
+ },[category, bots])
 
-  const enlistBot = (bot) => {
-    if (!yourBotArmy.find((b) => b.id === bot.id)) {
-      setYourBotArmy([...yourBotArmy, bot]);
+ function sortByArmor(){
+ setCategory('armor')
+ }
 
-    }
+ function sortByDamage(){
+  setCategory('damage')
 
-  };
+ }
 
-  const releaseBot = (botId) => {
-    const updatedArmy = yourBotArmy.filter((bot) => bot.id !== botId);
-    setYourBotArmy(updatedArmy);
+ function sortByHealth(){
+  setCategory('health')
 
-  };
-
-  const dischargeBot = async (botId) => {
-    try {
-      await axios.delete(`http://localhost:8002/bots/${botId}`);
-      // Update the frontend state to remove the bot
-      const updatedArmy = yourBotArmy.filter((bot) => bot.id !== botId);
-      setYourBotArmy(updatedArmy);
-
-    } catch (error) {
-      console.error("Error discharging bot:", error);
-
-    }
-
-  };
-
-  
-  const handleFilterChange = (selectedFilters) => {
-    setFilters(selectedFilters);
-  };
-
-  const filteredBots = allBots.filter((bot) => {
-    if (filters.length === 0) {
-      return true;    // If no filters selected, show all bots
-    }
-    return filters.includes(bot.bot_class);
-
-  });
+ }
 
 
-  return (
-    <div>
-      <YourBotArmy bots={yourBotArmy} releaseBot={releaseBot} dischargeBot={dischargeBot} />
-      <BotCollection bots={filteredBots} enlistBot={enlistBot} />
+    return ( 
       <div>
-        <h2>Filter by Class:</h2>
-        <label>
-          <input
-            type="checkbox"
-            value="Assault"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Assault
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="Defender"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Defender
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="Support"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Support
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="Medic"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Medic
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="Witch"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Witch
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            value="Captain"
-            onChange={(e) =>
-              handleFilterChange(
-                e.target.checked
-                  ? [...filters, e.target.value]
-                  : filters.filter((filter) => filter !== e.target.value)
-              )
-            }
-          />
-          Captain
-        </label>
-        
+        <YourBotArmy 
+          bots={myArmy} 
+          removeBot={deleteFromMyArmy}
+          deleteBot={deleteBot}/>
+        {showBots ? <BotSpecs 
+          bot={selectedBots}
+          handleGoBack={handleGoBack}
+          handleEnlist={handleEnlist}
+        /> : 
+        <>
+        <SortBar sortByArmor={sortByArmor} sortByDamage={sortByDamage} sortByHealth={sortByHealth}/>
+        <BotCollection  bots={sortedBots}
+          handleSelect={handleSelect}
+          deleteBot={deleteBot}/>
+        </>
+        }
       </div>
+      
+   )
+ }
 
-    </div>
-  )
-}
-
-export default BotsPage;
+ export default BotsPage;

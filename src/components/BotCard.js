@@ -1,4 +1,5 @@
 import React from "react";
+import axios from 'axios';
 
 
 const botTypeClasses = {
@@ -8,72 +9,73 @@ const botTypeClasses = {
   Medic: "icon ambulance",
   Witch: "icon magic",
   Captain: "icon star",
- };
+};
 
-   function BotCard({ bot, onClick,  dischargeBot, onRelease }) {
-   const handleClick = () => {
-    if (bot.enlisted && typeof onRelease === "function") {
-      onRelease();        // Trigger onRelease (releaseBot) if the bot is enlisted
-    } else if (!bot.enlisted && typeof onClick === "function") {
-    onClick();     // Trigger onClick (enlistBot) if the bot is not enlisted
+function BotCard({ bot , handleSelect, deleteBot }) {
+  const {id, avatar_url, bot_class, catchphrase, health, damage, armor} = bot
 
-    }
+  function handleDelete(){
+    axios.delete(`http://localhost:8002/bots/${id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
 
-   };
+    })
+    .then((res)=> {
+      if(res.status >= 200 && res.status < 300){
+        deleteBot(bot)
+      } else {
+        throw new Error('Error was encontered when removing bot')
+      }
+    })
+    .catch(error =>
+    console.error(error, 'Failed to remove bot')); 
+  }
 
 
-   const handleDischarge = async (event) => {
-    event.stopPropagation(); // Prevent card click event from firing
-
-    try {
-      await dischargeBot(bot.id);
-
-    } catch (error) {
-      console.error("Error discharging bot:", error);
-
-    }
-
-  };
-  //console.log("onRelease prop:", onRelease); 
-  
   return (
     <div className="ui column">
-      <div className="ui card" onClick={handleClick} >
+      <div
+        className="ui card"
+        key={id}
+        onClick={()=>handleSelect(bot)}
+      >
         <div className="image">
-          <img alt="oh no!" src={bot.avatar_url} />
+          <img alt="oh no!" src={avatar_url} />
         </div>
         <div className="content">
           <div className="header">
             {bot.name}
-            <i className={botTypeClasses[bot.bot_class]} />
+            <i className={botTypeClasses[bot_class]} />
           </div>
           <div className="meta text-wrap">
-            <small>{bot.catchphrase}</small>
+            <small>{catchphrase}</small>
           </div>
         </div>
         <div className="extra content">
           <span>
             <i className="icon heartbeat" />
-            {bot.health}
+            {health}
           </span>
 
           <span>
             <i className="icon lightning" />
-            {bot.damage}
+            {damage}
           </span>
           <span>
             <i className="icon shield" />
-            {bot.armor}
+            {armor}
           </span>
-            <span>
-              <div className="ui centre aligned segment basic">
-                <button className="ui mini red button" onClick={handleDischarge} >
+          <span>
+            <div className="ui center aligned segment basic">
+              <button
+                className="ui mini red button"
+                onClick={handleDelete}
+              >
                 x
-                </button>
-              </div>
-            </span>
-        
-          
+              </button>
+            </div>
+          </span>
         </div>
       </div>
     </div>
